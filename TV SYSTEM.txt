@@ -1,6 +1,6 @@
 ***********************************************TABLES IN TV SYSTEM*********************************************************
 
-view(playque): select channel.channel_id, channel.channel_name, program_routine.program_name, time_slot.start_time, time_slot.end_time
+view(playque): select channel.channel_id, channel.channel_name,channel.channel_type as type,channel_language as lang, program_routine.program_name, time_slot.start_time, time_slot.end_time
 	  from program_routine natural join channel natural join time_slot
 
 view(currently_playing) = SELECT * from playque where CURRENT_TIME()>=start_time and end_time>=CURRENT_TIME();
@@ -23,6 +23,7 @@ packages: FreeChannels
 
 recorded_shows: rec_id(pk), program_name, time_slot_id
 
+requests: req_id(pk), username, new_pack_id, status, req time
 
 ***********************************************FEATURES*********************************************************
 
@@ -32,9 +33,8 @@ recorded_shows: rec_id(pk), program_name, time_slot_id
 	-- back and next options are given
 
 2) admin login --> at login page
-	-- add channel
+	-- Accept change requests
 	-- change user package
-	-- delete channel
 	-- update channel
 
 3) Search channel
@@ -55,6 +55,7 @@ recorded_shows: rec_id(pk), program_name, time_slot_id
 	-- show current settings
 	{current username ,password ,package}
 	-- change username password and ask for confirmation
+	-- request package change
 
 ## GIT commands
 

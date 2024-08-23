@@ -39,13 +39,12 @@ public class Main {
                         System.out.println(Misc.ANSI_RED + "Login failed!!!" + Misc.ANSI_RESET);
                     } else {
                         if (user.equals("admin")) {
-                            System.out.println(Misc.ANSI_YELLOW + "ADMIN LOGIN SUCCESSFUL!!!" + Misc.ANSI_RESET);
                             // If user is admin then a special class has to run
                             AdminLogin ad = new AdminLogin(current_user_id, quer);
                             ad.main(inp, current_user_id);
                         } else {
                             // Whatever classes are supposed to run after login is successfull go below
-                            Home h = new Home(current_user_id, quer);
+                            Home h = new Home(current_user_id, quer, user);
                             h.main(inp, current_user_id);
                         }
                     }

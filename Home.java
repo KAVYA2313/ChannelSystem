@@ -1,18 +1,19 @@
 import java.sql.SQLException;
 import java.util.Scanner;
-import DS.LinkedListPrac;
-import DS.Misc;
-import DS.PlayQue;
+
+import DS.*;
 
 public class Home {
     LinkedListPrac<PlayQue> curr_playing = new LinkedListPrac<>();
     LinkedListPrac<Integer> pack_chann = new LinkedListPrac<>();
     SQLQueries quer;
     int id;
+    String user;
 
-    public Home(int id, SQLQueries quer) throws SQLException, ClassNotFoundException {
+    public Home(int id, SQLQueries quer, String user) throws SQLException, ClassNotFoundException {
         this.quer = quer;
         this.id = id;
+        this.user = user;
         quer.getPackage(id, pack_chann);
     }
 
@@ -26,7 +27,7 @@ public class Home {
     }
 
     public void displayAll(Scanner inp) throws SQLException {
-        curr_playing = quer.displayAllChannels(pack_chann);
+        curr_playing = quer.AllChannels(pack_chann);
         curr_playing.playTV(inp);
     }
 
@@ -44,15 +45,19 @@ public class Home {
                     curr_playing.playTV(inp);
                     break;
                 case 2:
+                    SearchChannels se = new SearchChannels(quer, pack_chann);
+                    curr_playing = se.main(inp);
                     break;
                 case 3:
+                    RecordShow rs = new RecordShow(inp, quer, id);
+                    rs.main();
                     break;
                 case 4:
                     displayAll(inp);
                     break;
                 case 5:
-                    Settings st = new Settings();
-                    st.main(inp, id);
+                    Settings st = new Settings(user, id, quer);
+                    st.main(inp);
                     break;
                 case 6:
                     Misc.cls();
@@ -64,4 +69,5 @@ public class Home {
             }
         }
     }
+
 }

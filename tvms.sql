@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 20, 2024 at 12:05 PM
+-- Generation Time: Aug 23, 2024 at 03:01 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -98,6 +98,8 @@ INSERT INTO `channel` (`channel_id`, `channel_name`, `channel_type`, `channel_la
 CREATE TABLE `currently_playing` (
 `channel_id` int(11)
 ,`channel_name` varchar(50)
+,`type` varchar(50)
+,`lang` varchar(50)
 ,`program_name` varchar(50)
 ,`start_time` time
 ,`end_time` time
@@ -136,6 +138,8 @@ INSERT INTO `free_channel` (`free_channel_id`) VALUES
 CREATE TABLE `playque` (
 `channel_id` int(11)
 ,`channel_name` varchar(50)
+,`type` varchar(50)
+,`lang` varchar(50)
 ,`program_name` varchar(50)
 ,`start_time` time
 ,`end_time` time
@@ -1326,6 +1330,57 @@ CREATE TABLE `record_shows` (
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `record_shows`
+--
+
+INSERT INTO `record_shows` (`record_id`, `programe_name`, `channel_id`, `time_slot_id`, `user_id`) VALUES
+(2, 'Mahabharat', 2, 15, 1),
+(6, 'Tmkoc', 3, 24, 1),
+(7, 'Ads', 33, 23, 1),
+(8, 'News Now', 22, 6, 1),
+(9, 'Story Of India', 42, 14, 5);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `requests`
+--
+
+CREATE TABLE `requests` (
+  `req_id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `new_pack_id` int(11) NOT NULL,
+  `status` varchar(20) NOT NULL,
+  `req_time` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `requests`
+--
+
+INSERT INTO `requests` (`req_id`, `username`, `new_pack_id`, `status`, `req_time`) VALUES
+(1, 'rishabh', 2, 'accepted', '2024-08-23 11:22:56'),
+(2, 'rishabh', 2, 'accepted', '2024-08-23 12:45:07'),
+(3, 'rishabh', 4, 'accepted', '2024-08-23 12:46:16'),
+(4, 'k@1234', 1, 'rejected', '2024-08-23 12:46:45'),
+(5, 'rishabh', 3, 'rejected', '2024-08-23 12:49:13'),
+(6, 'k@1234', 2, 'accepted', '2024-08-23 12:49:59'),
+(7, 'rishabh', 3, 'rejected', '2024-08-23 12:53:01'),
+(8, 'rishabh', 2, 'accepted', '2024-08-23 12:56:04');
+
+--
+-- Triggers `requests`
+--
+DELIMITER $$
+CREATE TRIGGER `updatePackage` AFTER UPDATE ON `requests` FOR EACH ROW BEGIN
+IF NEW.status = 'accepted' THEN
+UPDATE user set package_id=NEW.new_pack_id where username=NEW.username;
+end if;
+END
+$$
+DELIMITER ;
+
 -- --------------------------------------------------------
 
 --
@@ -1388,7 +1443,7 @@ CREATE TABLE `user` (
 INSERT INTO `user` (`user_id`, `username`, `password`, `package_id`) VALUES
 (1, 'rishabh', 'rishabh', 2),
 (4, 'admin', 'root', 1),
-(5, 'k@1234', '1234', 3);
+(5, 'k@1234', '1234', 2);
 
 -- --------------------------------------------------------
 
@@ -1397,7 +1452,7 @@ INSERT INTO `user` (`user_id`, `username`, `password`, `package_id`) VALUES
 --
 DROP TABLE IF EXISTS `currently_playing`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `currently_playing`  AS SELECT `playque`.`channel_id` AS `channel_id`, `playque`.`channel_name` AS `channel_name`, `playque`.`program_name` AS `program_name`, `playque`.`start_time` AS `start_time`, `playque`.`end_time` AS `end_time` FROM `playque` WHERE curtime() >= `playque`.`start_time` AND `playque`.`end_time` >= curtime() ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `currently_playing`  AS SELECT `playque`.`channel_id` AS `channel_id`, `playque`.`channel_name` AS `channel_name`, `playque`.`type` AS `type`, `playque`.`lang` AS `lang`, `playque`.`program_name` AS `program_name`, `playque`.`start_time` AS `start_time`, `playque`.`end_time` AS `end_time` FROM `playque` WHERE curtime() >= `playque`.`start_time` AND `playque`.`end_time` >= curtime() ;
 
 -- --------------------------------------------------------
 
@@ -1406,7 +1461,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `playque`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `playque`  AS SELECT `channel`.`channel_id` AS `channel_id`, `channel`.`channel_name` AS `channel_name`, `program_routine`.`program_name` AS `program_name`, `time_slot`.`start_time` AS `start_time`, `time_slot`.`end_time` AS `end_time` FROM ((`program_routine` join `channel` on(`program_routine`.`channel_id` = `channel`.`channel_id`)) join `time_slot` on(`program_routine`.`time_slot_id` = `time_slot`.`time_slot_id`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `playque`  AS SELECT `channel`.`channel_id` AS `channel_id`, `channel`.`channel_name` AS `channel_name`, `channel`.`channel_type` AS `type`, `channel`.`channel_language` AS `lang`, `program_routine`.`program_name` AS `program_name`, `time_slot`.`start_time` AS `start_time`, `time_slot`.`end_time` AS `end_time` FROM ((`program_routine` join `channel` on(`program_routine`.`channel_id` = `channel`.`channel_id`)) join `time_slot` on(`program_routine`.`time_slot_id` = `time_slot`.`time_slot_id`)) ;
 
 --
 -- Indexes for dumped tables
@@ -1435,6 +1490,12 @@ ALTER TABLE `program_routine`
 --
 ALTER TABLE `record_shows`
   ADD PRIMARY KEY (`record_id`);
+
+--
+-- Indexes for table `requests`
+--
+ALTER TABLE `requests`
+  ADD PRIMARY KEY (`req_id`);
 
 --
 -- Indexes for table `time_slot`
@@ -1475,7 +1536,13 @@ ALTER TABLE `program_routine`
 -- AUTO_INCREMENT for table `record_shows`
 --
 ALTER TABLE `record_shows`
-  MODIFY `record_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `record_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `requests`
+--
+ALTER TABLE `requests`
+  MODIFY `req_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `time_slot`
